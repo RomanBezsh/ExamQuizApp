@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ExamQuizApp.Domain
 {
-    public class User
+    public class Result
     {
-        public string? Login { get; set; }
-        public string? Password { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public string? UserLogin { get; set; }
+        public int Score { get; set; }
+
     }
 }

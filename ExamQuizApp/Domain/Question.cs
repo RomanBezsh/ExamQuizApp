@@ -8,7 +8,7 @@ namespace ExamQuizApp.Domain
 {
     public class Question
     {
-        public string Text { get; set; }
-        public List<Answer> Answers { get; set; }
+        public string? Text { get; set; }
+        public List<Option>? Options { get; set; }
     }
 }

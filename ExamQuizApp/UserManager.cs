@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,17 +10,20 @@ namespace ExamQuizApp
     public static class UserManager
     {
         private static List<User> _users = new List<User>();
-        public static void Register(string login, string password, DateTime dateOfBirth)
+        public static void Register(string? login, string? password, DateTime date)
         {
-            if (_users.Exists(u => u.Login == login))
+            if (_users.Any(user => user.Login == login))
             {
-                throw new ArgumentException("Этот логин уже занят");
+                throw new Exception("Данный логин уже занят");
             }
-            _users.Add(new User { Login = login, Password = password, DateOfBirth = dateOfBirth });
+            _users.Add(new User { Login = login, Password = password, DateOfBirth = date});
         }
-        public static bool Login(string login, string password)
+        public static User Login(string? login, string? password)
         {
-            return _users.Exists(u => u.Login == login && u.Password == password);
+            var user = _users.FirstOrDefault(user => user.Login == login && user.Password == password);
+            if (user == null)
+                throw new Exception("Invalid credentials.");
+            return user;
         }
     }
 }
