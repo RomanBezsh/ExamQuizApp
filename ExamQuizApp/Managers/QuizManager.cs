@@ -12,6 +12,36 @@ namespace ExamQuizApp.Managers
     {
         private static List<Quiz> _quizzes = new List<Quiz>();
         public static List<string> GetTitleOfQuizzes() => _quizzes.Select(quiz => quiz.Title).ToList();
+        public static Quiz GetQuizzesByTitle(string title) => _quizzes.FirstOrDefault(quiz => quiz.Title == title);
+        public static void StartQuiz(User user, Quiz quiz)
+        {
+            Console.WriteLine($"Начинаем викторину: {quiz.Title}");
+            int score = 0;
+            foreach (var question in quiz.Questions)
+            {
+                Console.WriteLine(question.Text);
+                for (int i = 0; i < question.Options.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {question.Options[i].Text}");
+                }
+                int userAnswer;
+                while (!int.TryParse(Console.ReadLine(), out userAnswer) || userAnswer < 1 || userAnswer > question.Options.Count)
+                {
+                    Console.WriteLine("Неверный ввод. Пожалуйста, введите номер одного из вариантов.");
+                }
+                if (question.Options[userAnswer - 1].IsCorrect)
+                {
+                    score++;
+                }
+            }
+            Console.WriteLine($"Викторина завершена! Ваш результат: {score}/{quiz.Questions.Count}");
+            ResultManager.AddResult(new Result
+            {
+                UserLogin = user.Login,
+                TitleOfQuiz = quiz.Title,
+                Score = score
+            });
+        }
         public static void CreateQuiz(string title, List<Question> questions)
         {
             if (_quizzes.Any(quiz => quiz.Title == title))
