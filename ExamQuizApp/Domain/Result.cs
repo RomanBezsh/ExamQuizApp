@@ -9,6 +9,7 @@ namespace ExamQuizApp.Domain
     public class Result
     {
         public string? UserLogin { get; set; }
+        public string? TitleOfQuiz { get; set; }
         public int Score { get; set; }
 
     }

@@ -134,7 +134,21 @@ namespace ExamQuizApp.UI
                 }
             }
         }
+        private void StartQuiz(User user)
+        {
+            Console.Clear();
+            Console.WriteLine("Выберите викторину за её номером: ");
+            var quizzes = QuizManager.GetTitleOfQuizzes();
+            int index = 1;
+            foreach (var titleOfQuiz in quizzes)
+            {
+                Console.WriteLine($"{index++}. {titleOfQuiz}");
+            }
+            int choice = int.Parse(Console.ReadLine());
+            if (choice < 1 || choice > quizzes.Count)
+                throw new Exception("Неверный номер викторины.");
 
+        }
 
     }
 
