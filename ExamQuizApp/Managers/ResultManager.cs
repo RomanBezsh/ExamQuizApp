@@ -14,14 +14,19 @@ namespace ExamQuizApp.Managers
         public static void AddResult(Result result)
         {
             _results.Add(result);
+            FileManager.SaveResults(_results);
         }
-        public static List<string> GetResults(string login)
+        public static void LoadResults()
+        {
+            _results = FileManager.LoadResults();
+        }
+        public static List<string> GetHistory(string login)
         {
             return _results.Where(r => r.UserLogin == login).Select(r => $"{r.TitleOfQuiz} {r.Score}").ToList();
         }
         public static List<string> GetTop10Results(string login)
         {
-            return _results.Where(r => r.UserLogin == login).OrderByDescending(r => r.Score).Select(r => r.TitleOfQuiz + " " + r.Score).ToList(); ;
+            return _results.Where(r => r.UserLogin == login).OrderByDescending(r => r.Score).Select(r => r.TitleOfQuiz + " " + r.Score).ToList();
         }
     }
 }

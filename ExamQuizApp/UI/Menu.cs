@@ -10,9 +10,11 @@ namespace ExamQuizApp.UI
 {
     internal class Menu
     {
-        public User? User { get; set; }
+        public User User { get; set; }
+        //Меню
         public void Start()
         {
+            LoadData();
             while (true)
             {
                 Console.Clear();
@@ -81,50 +83,50 @@ namespace ExamQuizApp.UI
                 }
             }
         }
-        private void ShowQuizEditor()
-        {
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine("1. Создать викторину");
-                Console.WriteLine("2. Создать вопрос");
-                Console.WriteLine("3. Создать вариант ответа");
-                Console.WriteLine("4. Изменить викторину");
-                Console.WriteLine("5. Изменить вопрос");
-                Console.WriteLine("6. Изменить вариант ответа");
-                Console.WriteLine("7. Выйти");
+        //private void ShowQuizEditor()
+        //{
+        //    while (true)
+        //    {
+        //        Console.Clear();
+        //        Console.WriteLine("1. Создать викторину");
+        //        Console.WriteLine("2. Создать вопрос");
+        //        Console.WriteLine("3. Создать вариант ответа");
+        //        Console.WriteLine("4. Изменить викторину");
+        //        Console.WriteLine("5. Изменить вопрос");
+        //        Console.WriteLine("6. Изменить вариант ответа");
+        //        Console.WriteLine("7. Выйти");
 
-                string choice = Console.ReadLine();
-                switch (choice)
-                {
-                    case "1":
-                        CreateQuiz();
-                        break;
-                    case "2":
-                        CreateQuestion();
-                        break;
-                    case "3":
-                        CreateOption();
-                        break;
-                    case "4":
-                        EditQuiz();
-                        break;
-                    case "5":
-                        EditQuestion();
-                        break;
-                    case "6":
-                        EditOption();
-                        break;
-                    case "7":
-                        ShowMenu(User);
-                        break;
-                    default:
-                        Console.WriteLine("Неверный ввод. Попробуйте снова.");
-                        Console.ReadLine();
-                        break;
-                }
-            }
-        }
+        //        string choice = Console.ReadLine();
+        //        switch (choice)
+        //        {
+        //            case "1":
+        //                CreateQuiz();
+        //                break;
+        //            case "2":
+        //                CreateQuestion();
+        //                break;
+        //            case "3":
+        //                CreateOption();
+        //                break;
+        //            case "4":
+        //                EditQuiz();
+        //                break;
+        //            case "5":
+        //                EditQuestion();
+        //                break;
+        //            case "6":
+        //                EditOption();
+        //                break;
+        //            case "7":
+        //                Console.Clear();
+        //                return;
+        //            default:
+        //                Console.WriteLine("Неверный ввод. Попробуйте снова.");
+        //                Console.ReadLine();
+        //                break;
+        //        }
+        //    }
+        //}
         //Опции в начале программы
         private void Register()
         {
@@ -207,10 +209,12 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
-                    int choice = int.Parse(Console.ReadLine()) - 1;
-                    if (choice < 1 || choice > quizzes.Count)
+                    string input = Console.ReadLine();
+                    if (!int.TryParse(input, out int choice) || choice < 1 || choice > quizzes.Count)
+                    {
                         throw new Exception("Неверный номер викторины.");
-                    QuizManager.StartQuiz(user, QuizManager.GetQuizzesByTitle(quizzes[choice]));
+                    }
+                    QuizManager.StartQuiz(user, QuizManager.GetQuizzesByTitle(quizzes[choice-1]));
                     Console.WriteLine("Нажмите Enter, чтобы вернуться в меню.");
                     Console.ReadLine();
                     break;
@@ -262,7 +266,7 @@ namespace ExamQuizApp.UI
         private void ShowHistory(User user)
         {
             Console.Clear();
-            var results = ResultManager.GetResults(user.Login);
+            var results = ResultManager.GetHistory(user.Login);
             Console.WriteLine($"История:");
             foreach (var result in results)
             {
@@ -312,191 +316,468 @@ namespace ExamQuizApp.UI
             }
         }
         //Опции для создания и изменения викторин
-        private void CreateQuiz()
+        private void ShowQuizEditor()
         {
-            Console.Clear();
             while (true)
             {
-                try
-                {
-                    Console.WriteLine("Введите название викторины: ");
-                    string title = Console.ReadLine();
-                    if (title == null)
-                        throw new Exception("Название не может быть пустым.");
+                Console.Clear();
+                Console.WriteLine("1. Создать викторину");
+                Console.WriteLine("2. Изменить викторину");
+                Console.WriteLine("3. Добавить вопросы к существующей викторине");
+                Console.WriteLine("4. Добавить варианты к существующему вопросу");
+                Console.WriteLine("5. Выйти");
 
-                    QuizManager.CreateQuiz(title, new List<Question>());
-                    Console.WriteLine("Викторина успешно создана. Нажмите Enter, чтобы продолжить.");
-                    Console.ReadLine();
-                    break;
-                }
-                catch (Exception ex)
+                string choice = Console.ReadLine();
+                switch (choice)
                 {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    case "1":
+                        CreateQuizWithQuestions();
+                        break;
+                    case "2":
+                        EditQuiz();
+                        break;
+                    case "3":
+                        AddQuestionsToExistingQuiz();
+                        break;
+                    case "4":
+                        AddQuestionsToExistingQuiz();
+                        break;
+                    case "5":
+                        Console.Clear();
+                        return;
+                    default:
+                        Console.WriteLine("Неверный ввод. Попробуйте снова.");
+                        Console.ReadLine();
+                        break;
                 }
             }
         }
-        private void CreateQuestion()
+        private void CreateQuizWithQuestions()
         {
             Console.Clear();
+            Console.WriteLine("Введите название викторины:");
+            string quizTitle = Console.ReadLine();
+
+            var questions = new List<Question>();
+
             while (true)
             {
-                try
+                Console.Clear();
+                Console.WriteLine("Введите текст вопроса (или оставьте пустым для завершения):");
+                string questionText = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(questionText))
                 {
-                    Console.WriteLine("Введите название викторины: ");
-                    string title = Console.ReadLine();
-                    if (title == null)
-                        throw new Exception("Название не может быть пустым.");
-
-                    Console.WriteLine("Введите текст вопроса: ");
-                    string text = Console.ReadLine();
-                    if (text == null)
-                        throw new Exception("Текст вопроса не может быть пустым.");
-
-                    QuizManager.CreateQuestion(QuizManager.GetQuizzesByTitle(title), text, new List<Option>());
-                    Console.WriteLine("Вопрос успешно создан. Нажмите Enter, чтобы продолжить.");
-                    Console.ReadLine();
                     break;
                 }
-                catch (Exception ex)
+
+                var options = new List<Option>();
+                while (true)
                 {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    Console.WriteLine("Введите текст варианта ответа (или оставьте пустым для завершения):");
+                    string optionText = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(optionText))
+                    {
+                        break;
+                    }
+
+                    Console.WriteLine("Этот вариант правильный? (да/нет):");
+                    bool isCorrect = Console.ReadLine().Trim().ToLower() == "да";
+
+                    options.Add(new Option
+                    {
+                        Text = optionText,
+                        IsCorrect = isCorrect
+                    });
                 }
+
+                questions.Add(new Question
+                {
+                    Text = questionText,
+                    Options = options
+                });
             }
-        }
-        private void CreateOption()
-        {
-            Console.Clear();
-            while (true)
-            {
-                try
-                {
-                    Console.WriteLine("Введите название викторины: ");
-                    string title = Console.ReadLine();
-                    if (title == null)
-                        throw new Exception("Название не может быть пустым.");
 
-                    Console.WriteLine("Введите текст вопроса: ");
-                    string question = Console.ReadLine();
-                    if (question == null)
-                        throw new Exception("Текст вопроса не может быть пустым.");
-
-                    Console.WriteLine("Введите текст варианта ответа: ");
-                    string text = Console.ReadLine();
-                    if (text == null)
-                        throw new Exception("Текст варианта ответа не может быть пустым.");
-
-                    Console.WriteLine("Является ли вариант ответа правильным? (true/false): ");
-                    bool isCorrect = bool.Parse(Console.ReadLine());
-
-                    QuizManager.CreateOption(QuizManager.GetQuizzesByTitle(title), question, text, isCorrect);
-                    Console.WriteLine("Вариант ответа успешно создан. Нажмите Enter, чтобы продолжить.");
-                    Console.ReadLine();
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
-                }
-            }
+            QuizManager.CreateQuiz(quizTitle, questions);
+            Console.WriteLine("Викторина успешно создана. Нажмите Enter, чтобы вернуться в меню.");
+            Console.ReadLine();
         }
         private void EditQuiz()
         {
             Console.Clear();
+            Console.WriteLine("Выберите викторину для редактирования за её номером:");
+            var quizzes = QuizManager.GetTitleOfQuizzes();
+            int index = 1;
+            foreach (var titleOfQuiz in quizzes)
+            {
+                Console.WriteLine($"{index++}. {titleOfQuiz}");
+            }
+
+            string input = Console.ReadLine();
+            if (!int.TryParse(input, out int choice) || choice < 1 || choice > quizzes.Count)
+            {
+                Console.WriteLine("Неверный номер викторины. Нажмите Enter, чтобы вернуться в меню.");
+                Console.ReadLine();
+                return;
+            }
+
+            var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
+
             while (true)
             {
-                try
-                {
-                    Console.WriteLine("Введите название викторины: ");
-                    string title = Console.ReadLine();
-                    if (title == null)
-                        throw new Exception("Название не может быть пустым.");
+                Console.Clear();
+                Console.WriteLine($"Редактирование викторины: {quiz.Title}");
+                Console.WriteLine("1. Изменить название викторины");
+                Console.WriteLine("2. Изменить вопросы");
+                Console.WriteLine("3. Выйти");
 
-                    Console.WriteLine("Введите новое название викторины: ");
-                    string newTitle = Console.ReadLine();
-                    if (newTitle == null)
-                        throw new Exception("Название не может быть пустым.");
-
-                    QuizManager.GetQuizzesByTitle(title).Title = newTitle;
-                    Console.WriteLine("Название успешно изменено. Нажмите Enter, чтобы продолжить.");
-                    Console.ReadLine();
-                    break;
-                }
-                catch (Exception ex)
+                string editChoice = Console.ReadLine();
+                switch (editChoice)
                 {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    case "1":
+                        Console.WriteLine("Введите новое название викторины:");
+                        quiz.Title = Console.ReadLine();
+                        FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                        break;
+                    case "2":
+                        EditQuestions(quiz);
+                        break;
+                    case "3":
+                        return;
+                    default:
+                        Console.WriteLine("Неверный ввод. Попробуйте снова.");
+                        Console.ReadLine();
+                        break;
                 }
             }
         }
-        private void EditQuestion()
+        private void EditQuestions(Quiz quiz)
         {
-            Console.Clear();
             while (true)
             {
-                try
+                Console.Clear();
+                Console.WriteLine($"Редактирование вопросов викторины: {quiz.Title}");
+                int index = 1;
+                foreach (var q in quiz.Questions)
                 {
-                    Console.WriteLine("Введите название викторины: ");
-                    string title = Console.ReadLine();
-                    if (title == null)
-                        throw new Exception("Название не может быть пустым.");
+                    Console.WriteLine($"{index++}. {q.Text}");
+                }
 
-                    Console.WriteLine("Введите текст вопроса: ");
-                    string text = Console.ReadLine();
-                    if (text == null)
-                        throw new Exception("Текст вопроса не может быть пустым.");
+                Console.WriteLine("Введите номер вопроса для редактирования (или оставьте пустым для завершения):");
+                string input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    return;
+                }
 
-                    Console.WriteLine("Введите новый текст вопроса: ");
-                    string newText = Console.ReadLine();
-                    if (newText == null)
-                        throw new Exception("Текст вопроса не может быть пустым.");
-
-                    QuizManager.GetQuizzesByTitle(title).Questions.FirstOrDefault(question => question.Text == text).Text = newText;
-                    Console.WriteLine("Текст вопроса успешно изменен. Нажмите Enter, чтобы продолжить.");
+                if (!int.TryParse(input, out int choice) || choice < 1 || choice > quiz.Questions.Count)
+                {
+                    Console.WriteLine("Неверный номер вопроса. Нажмите Enter, чтобы попробовать снова.");
                     Console.ReadLine();
-                    break;
+                    continue;
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
-                }
+
+                var question = quiz.Questions[choice - 1];
+                Console.WriteLine("Введите новый текст вопроса:");
+                question.Text = Console.ReadLine();
+
+                EditOptions(question);
+                FileManager.SaveQuizzes(QuizManager.GetQuizzes()); ;
             }
         }
-        private void EditOption()
+        private void EditOptions(Question question)
         {
-            Console.Clear();
             while (true)
             {
-                try
+                Console.Clear();
+                Console.WriteLine($"Редактирование вариантов ответа для вопроса: {question.Text}");
+                int index = 1;
+                foreach (var op in question.Options)
                 {
-                    Console.WriteLine("Введите название викторины: ");
-                    string title = Console.ReadLine();
-                    if (title == null)
-                        throw new Exception("Название не может быть пустым.");
-
-                    Console.WriteLine("Введите текст вопроса: ");
-                    string questionText = Console.ReadLine();
-                    if (questionText == null)
-                        throw new Exception("Текст вопроса не может быть пустым.");
-
-                    Console.WriteLine("Введите текст варианта ответа: ");
-                    string? text = Console.ReadLine();
-                    if (text == null)
-                        throw new Exception("Текст варианта ответа не может быть пустым.");
-
-                    Console.WriteLine("Введите новый текст варианта ответа: ");
-                    string newText = Console.ReadLine();
-                    if (newText == null)
-                        throw new Exception("Текст варианта ответа не может быть пустым.");
-
-                    QuizManager.GetQuizzesByTitle(title).Questions.FirstOrDefault(question => question.Text == questionText).Options.FirstOrDefault(option => option.Text == text).Text = newText;
-                    Console.WriteLine("Текст варианта ответа успешно изменен. Нажмите Enter, чтобы продолжить.");
+                    Console.WriteLine($"{index++}. {op.Text} (Правильный: {op.IsCorrect})");
+                }
+                Console.WriteLine("Введите номер варианта для редактирования (или оставьте пустым для завершения):");
+                string input = Console.ReadLine();
+                if (input == null)
+                {
+                    return;
+                }
+                if (!int.TryParse(input, out int choice) || choice < 1 || choice > question.Options.Count)
+                {
+                    Console.WriteLine("Неверный номер варианта. Нажмите Enter, чтобы попробовать снова.");
                     Console.ReadLine();
+                }
+                var option = question.Options[choice - 1];
+                Console.WriteLine("Введите новый текст варианта:");
+                option.Text = Console.ReadLine();
+
+                Console.WriteLine("Этот вариант правильный? (true/false):");
+                option.IsCorrect = Boolean.Parse(Console.ReadLine());
+                FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+            }
+        }
+        private void AddQuestionsToExistingQuiz()
+        {
+            Console.Clear();
+            Console.WriteLine("Выберите викторину для добавления вопросов за её номером:");
+            var quizzes = QuizManager.GetTitleOfQuizzes();
+            int index = 1;
+            foreach (var titleOfQuiz in quizzes)
+            {
+                Console.WriteLine($"{index++}. {titleOfQuiz}");
+            }
+
+            string input = Console.ReadLine();
+            if (!int.TryParse(input, out int choice) || choice < 1 || choice > quizzes.Count)
+            {
+                Console.WriteLine("Неверный номер викторины. Нажмите Enter, чтобы вернуться в меню.");
+                Console.ReadLine();
+                return;
+            }
+
+            var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("Введите текст вопроса (или оставьте пустым для завершения):");
+                string questionText = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(questionText))
+                {
                     break;
                 }
-                catch (Exception ex)
+
+                var options = new List<Option>();
+                while (true)
                 {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    Console.WriteLine("Введите текст варианта ответа (или оставьте пустым для завершения):");
+                    string optionText = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(optionText))
+                    {
+                        break;
+                    }
+
+                    Console.WriteLine("Этот вариант правильный? (да/нет):");
+                    bool isCorrect = Console.ReadLine().Trim().ToLower() == "да";
+
+                    options.Add(new Option
+                    {
+                        Text = optionText,
+                        IsCorrect = isCorrect
+                    });
                 }
+
+                quiz.Questions.Add(new Question
+                {
+                    Text = questionText,
+                    Options = options
+                });
             }
+
+            FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+            Console.WriteLine("Вопросы успешно добавлены. Нажмите Enter, чтобы вернуться в меню.");
+            Console.ReadLine();
+        }
+        
+        //private void CreateQuiz()
+        //{
+        //    Console.Clear();
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine("Введите название викторины: ");
+        //            string title = Console.ReadLine();
+        //            if (title == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            QuizManager.CreateQuiz(title, new List<Question>());
+        //            Console.WriteLine("Викторина успешно создана. Нажмите Enter, чтобы продолжить.");
+        //            Console.ReadLine();
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Ошибка: {ex.Message}");
+        //        }
+        //    }
+        //}
+        //private void CreateQuestion()
+        //{
+        //    Console.Clear();
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine("Введите название викторины: ");
+        //            string title = Console.ReadLine();
+        //            if (title == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            Console.WriteLine("Введите текст вопроса: ");
+        //            string text = Console.ReadLine();
+        //            if (text == null)
+        //                throw new Exception("Текст вопроса не может быть пустым.");
+
+        //            QuizManager.CreateQuestion(QuizManager.GetQuizzesByTitle(title), text, new List<Option>());
+        //            Console.WriteLine("Вопрос успешно создан. Нажмите Enter, чтобы продолжить.");
+        //            Console.ReadLine();
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Ошибка: {ex.Message}");
+        //        }
+        //    }
+        //}
+        //private void CreateOption()
+        //{
+        //    Console.Clear();
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine("Введите название викторины: ");
+        //            string title = Console.ReadLine();
+        //            if (title == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            Console.WriteLine("Введите текст вопроса: ");
+        //            string question = Console.ReadLine();
+        //            if (question == null)
+        //                throw new Exception("Текст вопроса не может быть пустым.");
+
+        //            Console.WriteLine("Введите текст варианта ответа: ");
+        //            string text = Console.ReadLine();
+        //            if (text == null)
+        //                throw new Exception("Текст варианта ответа не может быть пустым.");
+
+        //            Console.WriteLine("Является ли вариант ответа правильным? (true/false): ");
+        //            bool isCorrect = bool.Parse(Console.ReadLine());
+
+        //            QuizManager.CreateOption(QuizManager.GetQuizzesByTitle(title), question, text, isCorrect);
+        //            Console.WriteLine("Вариант ответа успешно создан. Нажмите Enter, чтобы продолжить.");
+        //            Console.ReadLine();
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Ошибка: {ex.Message}");
+        //        }
+        //    }
+        //}
+        //private void EditQuiz()
+        //{
+        //    Console.Clear();
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine("Введите название викторины: ");
+        //            string title = Console.ReadLine();
+        //            if (title == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            Console.WriteLine("Введите новое название викторины: ");
+        //            string newTitle = Console.ReadLine();
+        //            if (newTitle == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            QuizManager.GetQuizzesByTitle(title).Title = newTitle;
+        //            FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+        //            Console.WriteLine("Название успешно изменено. Нажмите Enter, чтобы продолжить.");
+        //            Console.ReadLine();
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Ошибка: {ex.Message}");
+        //        }
+        //    }
+        //}
+        //private void EditQuestion()
+        //{
+        //    Console.Clear();
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine("Введите название викторины: ");
+        //            string title = Console.ReadLine();
+        //            if (title == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            Console.WriteLine("Введите текст вопроса: ");
+        //            string text = Console.ReadLine();
+        //            if (text == null)
+        //                throw new Exception("Текст вопроса не может быть пустым.");
+
+        //            Console.WriteLine("Введите новый текст вопроса: ");
+        //            string newText = Console.ReadLine();
+        //            if (newText == null)
+        //                throw new Exception("Текст вопроса не может быть пустым.");
+
+        //            QuizManager.GetQuizzesByTitle(title).Questions.FirstOrDefault(question => question.Text == text).Text = newText;
+        //            FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+        //            Console.WriteLine("Текст вопроса успешно изменен. Нажмите Enter, чтобы продолжить.");
+        //            Console.ReadLine();
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Ошибка: {ex.Message}");
+        //        }
+        //    }
+        //}
+        //private void EditOption()
+        //{
+        //    Console.Clear();
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine("Введите название викторины: ");
+        //            string title = Console.ReadLine();
+        //            if (title == null)
+        //                throw new Exception("Название не может быть пустым.");
+
+        //            Console.WriteLine("Введите текст вопроса: ");
+        //            string questionText = Console.ReadLine();
+        //            if (questionText == null)
+        //                throw new Exception("Текст вопроса не может быть пустым.");
+
+        //            Console.WriteLine("Введите текст варианта ответа: ");
+        //            string? text = Console.ReadLine();
+        //            if (text == null)
+        //                throw new Exception("Текст варианта ответа не может быть пустым.");
+
+        //            Console.WriteLine("Введите новый текст варианта ответа: ");
+        //            string newText = Console.ReadLine();
+        //            if (newText == null)
+        //                throw new Exception("Текст варианта ответа не может быть пустым.");
+
+        //            QuizManager.GetQuizzesByTitle(title).Questions.FirstOrDefault(question => question.Text == questionText).Options.FirstOrDefault(option => option.Text == text).Text = newText;
+        //            FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+        //            Console.WriteLine("Текст варианта ответа успешно изменен. Нажмите Enter, чтобы продолжить.");
+        //            Console.ReadLine();
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Ошибка: {ex.Message}");
+        //        }
+        //    }
+        //}
+
+
+
+
+
+        //Загрузка данных
+        public void LoadData()
+        {
+            UserManager.LoadUsers();
+            QuizManager.LoadQuizzes();
+            ResultManager.LoadResults();
         }
     }
 

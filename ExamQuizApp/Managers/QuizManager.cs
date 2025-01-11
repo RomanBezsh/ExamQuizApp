@@ -11,10 +11,26 @@ namespace ExamQuizApp.Managers
     public static class QuizManager
     {
         private static List<Quiz> _quizzes = new List<Quiz>();
-        public static List<string> GetTitleOfQuizzes() => _quizzes.Select(quiz => quiz.Title).ToList();
-        public static Quiz GetQuizzesByTitle(string title) => _quizzes.FirstOrDefault(quiz => quiz.Title == title);
+        public static void LoadQuizzes()
+        {
+            _quizzes = FileManager.LoadQuizzes();
+        }
+        public static List<Quiz> GetQuizzes()
+        {
+            return _quizzes;
+        }
+        public static List<string> GetTitleOfQuizzes() 
+        {
+            return _quizzes.Select(quiz => quiz.Title).ToList();
+        }
+        public static Quiz GetQuizzesByTitle(string title)
+        {
+
+           return _quizzes.FirstOrDefault(quiz => quiz.Title == title);
+        }
         public static void StartQuiz(User user, Quiz quiz)
         {
+            Console.Clear();
             Console.WriteLine($"Начинаем викторину: {quiz.Title}");
             int score = 0;
             foreach (var question in quiz.Questions)
@@ -33,6 +49,7 @@ namespace ExamQuizApp.Managers
                 {
                     score++;
                 }
+                Console.WriteLine();
             }
             Console.WriteLine($"Викторина завершена! Ваш результат: {score}/{quiz.Questions.Count}");
             ResultManager.AddResult(new Result
@@ -53,6 +70,7 @@ namespace ExamQuizApp.Managers
                 Title = title,
                 Questions = questions
             });
+            FileManager.SaveQuizzes(_quizzes);
         }
         public static void CreateQuestion(Quiz quiz, string text, List<Option> options)
         {
@@ -65,6 +83,7 @@ namespace ExamQuizApp.Managers
                 Text = text,
                 Options = options
             });
+            FileManager.SaveQuizzes(_quizzes);
         }
         public static void CreateOption(Quiz quiz, string question, string text, bool isCorrect)
         {
@@ -82,6 +101,7 @@ namespace ExamQuizApp.Managers
                 Text = text,
                 IsCorrect = isCorrect
             });
+            FileManager.SaveQuizzes(_quizzes);
         }
         public static Result CreateResult(string userLogin, string titleOfQuiz, int score)
         {
