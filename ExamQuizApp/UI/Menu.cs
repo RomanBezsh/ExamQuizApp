@@ -56,25 +56,25 @@ namespace ExamQuizApp.UI
                 Console.WriteLine("6. Выйти");
 
 
-                string choice = Console.ReadLine();
+                var choice = Convert.ToInt32(Console.ReadLine());
                 switch (choice)
                 {
-                    case "1":
+                    case 1:
                         StartQuiz(User);
                         break;
-                    case "2":
+                    case 2:
                         ShowHistory(User);
                         break;
-                    case "3":
+                    case 3:
                         ShowTop10Results(User);
                         break;
-                    case "4":
+                    case 4:
                         ChangeUserData(User);
                         break;
-                    case "5":
+                    case 5:
                         ShowQuizEditor();
                         break;
-                    case "6":
+                    case 6:
                         Console.Clear();
                         return;
                     default:
@@ -96,22 +96,22 @@ namespace ExamQuizApp.UI
                 Console.WriteLine("4. Добавить варианты к существующему вопросу");
                 Console.WriteLine("5. Выйти");
 
-                string choice = Console.ReadLine();
+                var choice = Convert.ToInt32(Console.ReadLine());
                 switch (choice)
                 {
-                    case "1":
+                    case 1:
                         CreateQuizWithQuestions();
                         break;
-                    case "2":
+                    case 2:
                         EditQuiz();
                         break;
-                    case "3":
+                    case 3:
                         AddQuestionsToExistingQuiz();
                         break;
-                    case "4":
+                    case 4:
                         AddQuestionsToExistingQuiz();
                         break;
-                    case "5":
+                    case 5:
                         Console.Clear();
                         return;
                     default:
@@ -239,11 +239,11 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
-                    int choice = int.Parse(Console.ReadLine()) - 1;
+                    int choice = int.Parse(Console.ReadLine());
 
                     if (choice < 1 || choice > quizzes.Count)
                         throw new Exception("Неверный номер викторины.");
-                    var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice]);
+                    var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice-1]);
                     var results = ResultManager.GetTop10Results(user.Login);
                     Console.Clear();
                     Console.WriteLine($"Топ 10 результатов по викторине {quiz.Title}:");
