@@ -92,9 +92,7 @@ namespace ExamQuizApp.UI
                 Console.Clear();
                 Console.WriteLine("1. Создать викторину");
                 Console.WriteLine("2. Изменить викторину");
-                Console.WriteLine("3. Добавить вопросы к существующей викторине");
-                Console.WriteLine("4. Добавить варианты к существующему вопросу");
-                Console.WriteLine("5. Выйти");
+                Console.WriteLine("3. Выйти");
 
                 var choice = Convert.ToInt32(Console.ReadLine());
                 switch (choice)
@@ -106,12 +104,6 @@ namespace ExamQuizApp.UI
                         EditQuiz();
                         break;
                     case 3:
-                        AddQuestionsToExistingQuiz();
-                        break;
-                    case 4:
-                        AddQuestionsToExistingQuiz();
-                        break;
-                    case 5:
                         Console.Clear();
                         return;
                     default:
@@ -251,7 +243,7 @@ namespace ExamQuizApp.UI
                     if (choice < 1 || choice > quizzes.Count)
                         throw new Exception("Неверный номер викторины.");
                     var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice-1]);
-                    var results = ResultManager.GetTop10Results(user.Login);
+                    var results = ResultManager.GetTop10Results(user.Login, quiz.Title);
                     Console.Clear();
                     Console.WriteLine($"Топ 10 результатов по викторине {quiz.Title}:");
                     foreach (var result in results)
@@ -351,7 +343,11 @@ namespace ExamQuizApp.UI
                         break;
                     }
                     Console.WriteLine("Этот вариант правильный? (true/false):");
-                    bool isCorrect = Boolean.Parse(Console.ReadLine());
+                    bool isCorrect;
+                    if (!Boolean.TryParse(Console.ReadLine(), out isCorrect))
+                    {
+                        throw new FormatException("Неверный формат ввода для правильности варианта.");
+                    }
 
                     options.Add(new Option
                     {
@@ -405,20 +401,28 @@ namespace ExamQuizApp.UI
                         Console.WriteLine($"Редактирование викторины: {quiz.Title}");
                         Console.WriteLine("1. Изменить название викторины");
                         Console.WriteLine("2. Изменить вопросы");
-                        Console.WriteLine("3. Выйти");
+                        Console.WriteLine("3. Добавить вопросы");
+                        Console.WriteLine("4. Добавить варианты");
+                        Console.WriteLine("5. Выйти");
 
-                        string editChoice = Console.ReadLine();
+                        var editChoice = Convert.ToInt32(Console.ReadLine());
                         switch (editChoice)
                         {
-                            case "1":
+                            case 1:
                                 Console.WriteLine("Введите новое название викторины:");
                                 quiz.Title = Console.ReadLine();
                                 FileManager.SaveQuizzes(QuizManager.GetQuizzes());
                                 break;
-                            case "2":
+                            case 2:
                                 EditQuestions(quiz);
                                 break;
-                            case "3":
+                            case 3:
+                                AddQuestions(quiz);
+                                break;
+                            case 4:
+                                AddOptions(quiz);
+                                break;
+                            case 5:
                                 return;
                             default:
                                 Console.WriteLine("Неверный ввод. Попробуйте снова.");
@@ -450,7 +454,7 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {q.Text}");
                     }
-                    Console.WriteLine("Введите номер вопроса для редактирования (или оставьте пустым для завершения):");
+                    Console.WriteLine("Введите номер вопроса для редактирования (или напишите 0 для выхода):");
                     var choice = Convert.ToInt32(Console.ReadLine());
                     if (choice == default)
                     {
@@ -488,9 +492,9 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {op.Text} (Правильный: {op.IsCorrect})");
                     }
-                    Console.WriteLine("Введите номер варианта для редактирования (или оставьте пустым для завершения):");
+                    Console.WriteLine("Введите номер варианта для редактирования (или напишите 0 для выхода):");
                     var choice = Convert.ToInt32(Console.ReadLine());
-                    if (choice == default)
+                    if (choice == 0)
                     {
                         return;
                     }
@@ -514,31 +518,12 @@ namespace ExamQuizApp.UI
                 }
             }
         }
-        private void AddQuestionsToExistingQuiz()
+        private void AddQuestions(Quiz quiz)
         {
             while (true)
             {
                 try
                 {
-                    Console.Clear();
-                    Console.WriteLine("Выберите викторину для добавления вопросов за её номером:");
-                    var quizzes = QuizManager.GetTitleOfQuizzes();
-                    int index = 1;
-                    foreach (var titleOfQuiz in quizzes)
-                    {
-                        Console.WriteLine($"{index++}. {titleOfQuiz}");
-                    }
-                    var choice = Convert.ToInt32(Console.ReadLine());
-                    if (choice == default)
-                    {
-                        return;
-                    }
-                    if (choice < 1 || choice > QuizManager.GetQuizzes().Count)
-                    {
-                        throw new Exception("Неверный номер викторины.");
-                    }
-                    var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
-
                     while (true)
                     {
                         Console.Clear();
@@ -558,7 +543,11 @@ namespace ExamQuizApp.UI
                                 break;
                             }
                             Console.WriteLine("Этот вариант правильный? (true/false):");
-                            bool isCorrect = Boolean.Parse(Console.ReadLine());
+                            bool isCorrect;
+                            if (!Boolean.TryParse(Console.ReadLine(), out isCorrect))
+                            {
+                                throw new FormatException("Неверный формат ввода для правильности варианта.");
+                            }
                             options.Add(new Option
                             {
                                 Text = optionText,
@@ -573,6 +562,57 @@ namespace ExamQuizApp.UI
                     }
                     FileManager.SaveQuizzes(QuizManager.GetQuizzes());
                     Console.WriteLine("Вопросы успешно добавлены. Нажмите Enter, чтобы вернуться в меню.");
+                    Console.ReadLine();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                    Console.ReadLine();
+                }
+            }
+        }
+        private void AddOptions(Quiz quiz)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.Clear();
+                    Console.WriteLine("Введите номер вопроса, к которому хотите добавить варианты (или напишите 0 для выхода):");
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == 0)
+                    {
+                        break;
+                    }
+                    if (choice < 1 || choice > quiz.Questions.Count)
+                    {
+                        throw new ArgumentException("Неверный номер вопроса.");
+                    }
+                    var question = quiz.Questions[choice - 1];
+                    while (true)
+                    {
+                        Console.WriteLine("Введите текст варианта ответа (или оставьте пустым для завершения):");
+                        string optionText = Console.ReadLine();
+                        if (string.IsNullOrWhiteSpace(optionText))
+                        {
+                            break;
+                        }
+                        Console.WriteLine("Этот вариант правильный? (true/false):");
+                        bool isCorrect;
+                        if (!Boolean.TryParse(Console.ReadLine(), out isCorrect))
+                        {
+                            throw new FormatException("Неверный формат ввода для правильности варианта.");
+                        }
+                        question.Options.Add(new Option
+                        {
+                            Text = optionText,
+                            IsCorrect = isCorrect
+                        });
+                    }
+                    FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                    Console.WriteLine("Варианты успешно добавлены. Нажмите Enter, чтобы вернуться в меню.");
                     Console.ReadLine();
                     break;
                 }

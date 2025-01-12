@@ -24,9 +24,9 @@ namespace ExamQuizApp.Managers
         {
             return _results.Where(r => r.UserLogin == login).Select(r => $"{r.TitleOfQuiz} {r.Score}").ToList();
         }
-        public static List<string> GetTop10Results(string login)
+        public static List<string> GetTop10Results(string login, string titleOfQuiz)
         {
-            return _results.Where(r => r.UserLogin == login).OrderByDescending(r => r.Score).Select(r => r.TitleOfQuiz + " " + r.Score).ToList();
+            return _results.Where(r => r.UserLogin == login && r.TitleOfQuiz == titleOfQuiz).OrderByDescending(r => r.Score).Select(r => r.TitleOfQuiz + " " + r.Score).ToList();
         }
     }
 }
