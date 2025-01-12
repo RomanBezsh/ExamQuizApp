@@ -207,8 +207,8 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
-                    string input = Console.ReadLine();
-                    if (!int.TryParse(input, out int choice) || choice < 1 || choice > quizzes.Count)
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice < 1 || choice > quizzes.Count)
                     {
                         throw new Exception("Неверный номер викторины.");
                     }
@@ -239,8 +239,7 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
-                    int choice = int.Parse(Console.ReadLine());
-
+                    var choice = Convert.ToInt32(Console.ReadLine());
                     if (choice < 1 || choice > quizzes.Count)
                         throw new Exception("Неверный номер викторины.");
                     var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice-1]);
@@ -366,51 +365,61 @@ namespace ExamQuizApp.UI
         }
         private void EditQuiz()
         {
-            Console.Clear();
-            Console.WriteLine("Выберите викторину для редактирования за её номером:");
-            var quizzes = QuizManager.GetTitleOfQuizzes();
-            int index = 1;
-            foreach (var titleOfQuiz in quizzes)
-            {
-                Console.WriteLine($"{index++}. {titleOfQuiz}");
-            }
-
-            string input = Console.ReadLine();
-            if (!int.TryParse(input, out int choice) || choice < 1 || choice > quizzes.Count)
-            {
-                Console.WriteLine("Неверный номер викторины. Нажмите Enter, чтобы вернуться в меню.");
-                Console.ReadLine();
-                return;
-            }
-
-            var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
-
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine($"Редактирование викторины: {quiz.Title}");
-                Console.WriteLine("1. Изменить название викторины");
-                Console.WriteLine("2. Изменить вопросы");
-                Console.WriteLine("3. Выйти");
-
-                string editChoice = Console.ReadLine();
-                switch (editChoice)
+                try
                 {
-                    case "1":
-                        Console.WriteLine("Введите новое название викторины:");
-                        quiz.Title = Console.ReadLine();
-                        FileManager.SaveQuizzes(QuizManager.GetQuizzes());
-                        break;
-                    case "2":
-                        EditQuestions(quiz);
-                        break;
-                    case "3":
-                        return;
-                    default:
-                        Console.WriteLine("Неверный ввод. Попробуйте снова.");
-                        Console.WriteLine("Нажмите Enter, чтобы продолжить.");
-                        Console.ReadLine();
-                        break;
+                    Console.Clear();
+                    Console.WriteLine("Выберите викторину для редактирования за её номером:");
+                    var quizzes = QuizManager.GetTitleOfQuizzes();
+                    int index = 1;
+                    foreach (var titleOfQuiz in quizzes)
+                    {
+                        Console.WriteLine($"{index++}. {titleOfQuiz}");
+                    }
+
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice < 1 || choice > quizzes.Count)
+                    {
+                        throw new Exception("Неверный номер викторины.");
+                    }
+                    var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
+
+                    while (true)
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"Редактирование викторины: {quiz.Title}");
+                        Console.WriteLine("1. Изменить название викторины");
+                        Console.WriteLine("2. Изменить вопросы");
+                        Console.WriteLine("3. Выйти");
+
+                        string editChoice = Console.ReadLine();
+                        switch (editChoice)
+                        {
+                            case "1":
+                                Console.WriteLine("Введите новое название викторины:");
+                                quiz.Title = Console.ReadLine();
+                                FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                                break;
+                            case "2":
+                                EditQuestions(quiz);
+                                break;
+                            case "3":
+                                return;
+                            default:
+                                Console.WriteLine("Неверный ввод. Попробуйте снова.");
+                                Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                                Console.ReadLine();
+                                break;
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                    Console.ReadLine();
                 }
             }
         }
@@ -418,31 +427,38 @@ namespace ExamQuizApp.UI
         {
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine($"Редактирование вопросов викторины: {quiz.Title}");
-                int index = 1;
-                foreach (var q in quiz.Questions)
+                try
                 {
-                    Console.WriteLine($"{index++}. {q.Text}");
-                }
-                Console.WriteLine("Введите номер вопроса для редактирования (или оставьте пустым для завершения):");
-                string input = Console.ReadLine();
-                if (input == null)
-                {
-                    return;
-                }
-                if (!int.TryParse(input, out int choice) || choice < 1 || choice > quiz.Questions.Count)
-                {
-                    Console.WriteLine("Неверный номер вопроса. Нажмите Enter, чтобы попробовать снова.");
-                    Console.ReadLine();
-                    continue;
-                }
-                var question = quiz.Questions[choice - 1];
-                Console.WriteLine("Введите новый текст вопроса:");
-                question.Text = Console.ReadLine();
+                    Console.Clear();
+                    Console.WriteLine($"Редактирование вопросов викторины: {quiz.Title}");
+                    int index = 1;
+                    foreach (var q in quiz.Questions)
+                    {
+                        Console.WriteLine($"{index++}. {q.Text}");
+                    }
+                    Console.WriteLine("Введите номер вопроса для редактирования (или оставьте пустым для завершения):");
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == default)
+                    {
+                        return;
+                    }
+                    if (choice < 1 || choice > quiz.Questions.Count)
+                    {
+                        throw new Exception("Неверный номер вопроса.");
+                    }
+                    var question = quiz.Questions[choice - 1];
+                    Console.WriteLine("Введите новый текст вопроса:");
+                    question.Text = Console.ReadLine();
 
-                EditOptions(question);
-                FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                    EditOptions(question);
+                    FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                    Console.ReadLine();
+                }
             }
         }
         private void EditOptions(Question question)
@@ -459,14 +475,14 @@ namespace ExamQuizApp.UI
                         Console.WriteLine($"{index++}. {op.Text} (Правильный: {op.IsCorrect})");
                     }
                     Console.WriteLine("Введите номер варианта для редактирования (или оставьте пустым для завершения):");
-                    string input = Console.ReadLine();
-                    if (input == null)
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == default)
                     {
-                        break;
+                        return;
                     }
-                    if (!int.TryParse(input, out int choice) || choice < 1 || choice > question.Options.Count)
+                    if (choice < 1 || choice > question.Options.Count)
                     {
-                        throw new Exception("Неверный номер варианта. Нажмите Enter, чтобы попробовать снова.");
+                        throw new Exception("Неверный номер вопроса.");
                     }
                     var option = question.Options[choice - 1];
                     Console.WriteLine("Введите новый текст варианта:");
@@ -498,8 +514,12 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
-                    string input = Console.ReadLine();
-                    if (!int.TryParse(input, out int choice) || choice < 1 || choice > quizzes.Count)
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == default)
+                    {
+                        return;
+                    }
+                    if (choice < 1 || choice > QuizManager.GetQuizzes().Count)
                     {
                         throw new Exception("Неверный номер викторины.");
                     }
