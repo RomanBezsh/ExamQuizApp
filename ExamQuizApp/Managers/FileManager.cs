@@ -12,16 +12,10 @@ namespace ExamQuizApp.Managers
 {
     internal static class FileManager
     {
-        private static readonly string UsersFilePath = "users.json";
-        private static readonly string QuizzesFilePath = "quizzes.json";
-        private static readonly string ResultsFilePath = "results.json";
+        private static string UsersFilePath = "users.json";
+        private static string QuizzesFilePath = "quizzes.json";
+        private static string ResultsFilePath = "results.json";
 
-        //public static void Save(List<User> users, List<Quiz> quizzes, List<Result> results)
-        //{
-        //    SaveToFile(UsersFilePath, users);
-        //    SaveToFile(QuizzesFilePath, quizzes);
-        //    SaveToFile(ResultsFilePath, results);
-        //}
         public static void SaveUsers(List<User> users)
         {
             SaveToFile(UsersFilePath, users);
