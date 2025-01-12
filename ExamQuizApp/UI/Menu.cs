@@ -200,7 +200,7 @@ namespace ExamQuizApp.UI
             {
                 try
                 {
-                    Console.WriteLine("Выберите викторину за её номером (или оставьте пустым для завершения): ");
+                    Console.WriteLine("Выберите викторину за её номером (или напишите 0 для выхода): ");
                     var quizzes = QuizManager.GetTitleOfQuizzes();
                     int index = 1;
                     foreach (var titleOfQuiz in quizzes)
@@ -208,13 +208,13 @@ namespace ExamQuizApp.UI
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
                     var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == 0)
+                    {
+                        return;
+                    }
                     if (choice < 1 || choice > quizzes.Count)
                     {
                         throw new Exception("Неверный номер викторины.");
-                    }
-                    else if (choice == default)
-                    {
-                        return;
                     }
                     QuizManager.StartQuiz(user, QuizManager.GetQuizzesByTitle(quizzes[choice-1]));
                     Console.WriteLine("Нажмите Enter, чтобы вернуться в меню.");
@@ -244,12 +244,12 @@ namespace ExamQuizApp.UI
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
                     var choice = Convert.ToInt32(Console.ReadLine());
-                    if (choice < 1 || choice > quizzes.Count)
-                        throw new Exception("Неверный номер викторины.");
-                    else if (choice == 0)
+                    if (choice == 0)
                     {
                         return;
                     }
+                    if (choice < 1 || choice > quizzes.Count)
+                        throw new Exception("Неверный номер викторины.");
                     var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice-1]);
                     var results = ResultManager.GetTop10Results(user.Login);
                     Console.Clear();
@@ -385,8 +385,11 @@ namespace ExamQuizApp.UI
                     {
                         Console.WriteLine($"{index++}. {titleOfQuiz}");
                     }
-
                     var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == 0)
+                    {
+                        return;
+                    }
                     if (choice < 1 || choice > quizzes.Count)
                     {
                         throw new Exception("Неверный номер викторины.");
