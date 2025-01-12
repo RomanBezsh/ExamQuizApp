@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ExamQuizApp.UI
 {
-    internal class Menu
+    internal class UI
     {
         public User User { get; set; }
         //Меню
@@ -200,7 +200,7 @@ namespace ExamQuizApp.UI
             {
                 try
                 {
-                    Console.WriteLine("Выберите викторину за её номером: ");
+                    Console.WriteLine("Выберите викторину за её номером (или оставьте пустым для завершения): ");
                     var quizzes = QuizManager.GetTitleOfQuizzes();
                     int index = 1;
                     foreach (var titleOfQuiz in quizzes)
@@ -211,6 +211,10 @@ namespace ExamQuizApp.UI
                     if (choice < 1 || choice > quizzes.Count)
                     {
                         throw new Exception("Неверный номер викторины.");
+                    }
+                    else if (choice == default)
+                    {
+                        return;
                     }
                     QuizManager.StartQuiz(user, QuizManager.GetQuizzesByTitle(quizzes[choice-1]));
                     Console.WriteLine("Нажмите Enter, чтобы вернуться в меню.");
@@ -232,7 +236,7 @@ namespace ExamQuizApp.UI
                 Console.Clear();
                 try
                 {
-                    Console.WriteLine("Выберите викторину за её номером: ");
+                    Console.WriteLine("Выберите викторину за её номером (или напишите 0 для выхода): ");
                     var quizzes = QuizManager.GetTitleOfQuizzes();
                     int index = 1;
                     foreach (var titleOfQuiz in quizzes)
@@ -242,6 +246,10 @@ namespace ExamQuizApp.UI
                     var choice = Convert.ToInt32(Console.ReadLine());
                     if (choice < 1 || choice > quizzes.Count)
                         throw new Exception("Неверный номер викторины.");
+                    else if (choice == 0)
+                    {
+                        return;
+                    }
                     var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice-1]);
                     var results = ResultManager.GetTop10Results(user.Login);
                     Console.Clear();
@@ -370,7 +378,7 @@ namespace ExamQuizApp.UI
                 try
                 {
                     Console.Clear();
-                    Console.WriteLine("Выберите викторину для редактирования за её номером:");
+                    Console.WriteLine("Выберите викторину для редактирования за её номером (или напишите 0 для выхода):");
                     var quizzes = QuizManager.GetTitleOfQuizzes();
                     int index = 1;
                     foreach (var titleOfQuiz in quizzes)
@@ -383,8 +391,11 @@ namespace ExamQuizApp.UI
                     {
                         throw new Exception("Неверный номер викторины.");
                     }
+                    else if (choice == 0)
+                    { 
+                       return;
+                    }
                     var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
-
                     while (true)
                     {
                         Console.Clear();
@@ -573,9 +584,121 @@ namespace ExamQuizApp.UI
         //Загрузка данных
         private void LoadData()
         {
+            LoadStandartQuizzes();
             UserManager.LoadUsers();
             QuizManager.LoadQuizzes();
             ResultManager.LoadResults();
+        }
+
+        //Стандартные викторины
+        private void LoadStandartQuizzes()
+        {
+            QuizManager.CreateQuiz("История", new List<Question>
+            {
+                new Question
+                {
+                    Text = "Кто был первым президентом Соединенных Штатов Америки?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Кто был первым президентом Соединенных Штатов Америки?", IsCorrect = false },
+                        new Option { Text = "Джордж Вашингтон", IsCorrect = true },
+                        new Option { Text = "Авраам Линкольн", IsCorrect = false },
+                        new Option { Text = "Джон Адамс", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "Какое событие стало началом Второй мировой войны?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Нападение на Перл-Харбор", IsCorrect = false },
+                        new Option { Text = "Нападение на Польшу", IsCorrect = true },
+                        new Option { Text = "Битва при Сталинграде", IsCorrect = false },
+                        new Option { Text = "Высадка в Нормандии", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "Какая империя была известна своей системой дорог и акведуков?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Греческая империя", IsCorrect = false },
+                        new Option { Text = "Римская империя", IsCorrect = true },
+                        new Option { Text = "Османская империя", IsCorrect = false },
+                        new Option { Text = "Персидская империя", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "Какая страна первой отправила человека в космос?\r\n\r\n",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Соединенные Штаты Америки", IsCorrect = false },
+                        new Option { Text = "Китай", IsCorrect = false },
+                        new Option { Text = "Советский Союз", IsCorrect = true },
+                        new Option { Text = "Франция", IsCorrect = false }
+                    }
+                }
+            });
+            QuizManager.CreateQuiz("Биология", new List<Question>
+            {
+                new Question
+                {
+                    Text = "Какая органелла отвечает за синтез белков?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Лизосома", IsCorrect = false },
+                        new Option { Text = "Рибосома", IsCorrect = true },
+                        new Option { Text = "Митохондрия", IsCorrect = false },
+                        new Option { Text = "Ядро", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "Какое основание входит в состав ДНК, но отсутствует в РНК?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Аденин", IsCorrect = false },
+                        new Option { Text = "Урацил", IsCorrect = false },
+                        new Option { Text = "Тимин", IsCorrect = true },
+                        new Option { Text = "Цитозин", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "Где в растительной клетке происходит фотосинтез?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "В вакуоли", IsCorrect = false },
+                        new Option { Text = "В ядре", IsCorrect = false },
+                        new Option { Text = "В хлоропластах", IsCorrect = true },
+                        new Option { Text = "В клеточной стенке", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "Кто является автором теории естественного отбора?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Жан-Батист Ламарк", IsCorrect = false },
+                        new Option { Text = "Чарльз Дарвин", IsCorrect = true },
+                        new Option { Text = "Альфред Уоллес", IsCorrect = false },
+                        new Option { Text = "Карл Линней", IsCorrect = false }
+                    }
+                },
+                new Question
+                {
+                    Text = "К какому царству относятся дрожжи?",
+                    Options = new List<Option>
+                    {
+                        new Option { Text = "Бактерии", IsCorrect = false },
+                        new Option { Text = "Грибы", IsCorrect = true },
+                        new Option { Text = "Растения", IsCorrect = false },
+                        new Option { Text = "Животные", IsCorrect = false }
+                    }
+                }
+            });
+
         }
     }
 
