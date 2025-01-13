@@ -390,10 +390,6 @@ namespace ExamQuizApp.UI
                     {
                         throw new Exception("Неверный номер викторины.");
                     }
-                    else if (choice == 0)
-                    { 
-                       return;
-                    }
                     var quiz = QuizManager.GetQuizzesByTitle(quizzes[choice - 1]);
                     while (true)
                     {
@@ -403,7 +399,10 @@ namespace ExamQuizApp.UI
                         Console.WriteLine("2. Изменить вопросы");
                         Console.WriteLine("3. Добавить вопросы");
                         Console.WriteLine("4. Добавить варианты");
-                        Console.WriteLine("5. Выйти");
+                        Console.WriteLine("5. Удалить викторину");
+                        Console.WriteLine("6. Удалить вопрос");
+                        Console.WriteLine("7. Удалить вариант");
+                        Console.WriteLine("8. Выйти");
 
                         var editChoice = Convert.ToInt32(Console.ReadLine());
                         switch (editChoice)
@@ -423,6 +422,15 @@ namespace ExamQuizApp.UI
                                 AddOptions(quiz);
                                 break;
                             case 5:
+                                DeleteQuiz(quiz);
+                                return;
+                            case 6:
+                                DeleteQuestion(quiz);
+                                break;
+                            case 7:
+                                DeleteOption(quiz);
+                                break;
+                            case 8:
                                 return;
                             default:
                                 Console.WriteLine("Неверный ввод. Попробуйте снова.");
@@ -456,7 +464,7 @@ namespace ExamQuizApp.UI
                     }
                     Console.WriteLine("Введите номер вопроса для редактирования (или напишите 0 для выхода):");
                     var choice = Convert.ToInt32(Console.ReadLine());
-                    if (choice == default)
+                    if (choice == 0)
                     {
                         return;
                     }
@@ -590,6 +598,7 @@ namespace ExamQuizApp.UI
                     {
                         throw new ArgumentException("Неверный номер вопроса.");
                     }
+
                     var question = quiz.Questions[choice - 1];
                     while (true)
                     {
@@ -624,6 +633,135 @@ namespace ExamQuizApp.UI
                 }
             }
         }
+        private void DeleteQuiz(Quiz quiz)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.Clear();
+                    Console.WriteLine("Уверенны что хотите удалить викторину? (true/false):");
+                    bool isDelete;
+                    if (!Boolean.TryParse(Console.ReadLine(), out isDelete))
+                    {
+                        throw new Exception("Неверный формат ввода.");
+                    }
+                    if (isDelete)
+                    {
+                        QuizManager.DeleteQuiz(quiz.Title);
+                        FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                        Console.WriteLine("Викторина успешно удалена. Нажмите Enter, чтобы вернуться в меню.");
+                        Console.ReadLine();
+                        break;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                    Console.ReadLine();
+                }
+            }
+        }
+        private void DeleteQuestion(Quiz quiz)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.Clear();
+                    Console.WriteLine("Введите номер вопроса, который хотите удалить (или напишите 0 для выхода):");
+                    for (int i = 0; i < quiz.Questions.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {quiz.Questions[i].Text}");
+                    }
+
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == 0)
+                    {
+                        return;
+                    }
+                    if (choice < 1 || choice > quiz.Questions.Count)
+                    {
+                        throw new Exception("Неверный номер вопроса.");
+                    }
+                    quiz.Questions.RemoveAt(choice - 1);
+                    FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                    Console.WriteLine("Вопрос успешно удален. Нажмите Enter, чтобы вернуться в меню.");
+                    Console.ReadLine();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                    Console.ReadLine();
+                }
+            }
+        }
+
+        private void DeleteOption(Quiz quiz)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.Clear();
+                    Console.WriteLine("Введите номер вопроса, у которого хотите удалить вариант (или напишите 0 для выхода):");
+                    for (int i = 0; i < quiz.Questions.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {quiz.Questions[i].Text}");
+                    }
+
+                    var questionChoice = Convert.ToInt32(Console.ReadLine());
+                    if (questionChoice == 0)
+                    {
+                        return;
+                    }
+                    if (questionChoice < 1 || questionChoice > quiz.Questions.Count)
+                    {
+                        throw new Exception("Неверный номер вопроса.");
+                    }
+
+                    var question = quiz.Questions[questionChoice - 1];
+                    Console.WriteLine("Введите номер варианта, который хотите удалить (или напишите 0 для выхода):");
+                    for (int i = 0; i < question.Options.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {question.Options[i].Text}");
+                    }
+
+                    var choice = Convert.ToInt32(Console.ReadLine());
+                    if (choice == 0)
+                    {
+                        return;
+                    }
+                    if (choice < 1 || choice > question.Options.Count)
+                    {
+                        throw new Exception("Неверный номер варианта.");
+                    }
+
+                    question.Options.RemoveAt(choice - 1);
+                    FileManager.SaveQuizzes(QuizManager.GetQuizzes());
+                    Console.WriteLine("Вариант успешно удален. Нажмите Enter, чтобы вернуться в меню.");
+                    Console.ReadLine();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}. Попробуйте снова.");
+                    Console.WriteLine("Нажмите Enter, чтобы продолжить.");
+                    Console.ReadLine();
+                }
+            }
+        }
+
+
+
+
         //Загрузка данных
         private void LoadData()
         {

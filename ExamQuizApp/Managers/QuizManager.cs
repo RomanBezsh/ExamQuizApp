@@ -112,5 +112,15 @@ namespace ExamQuizApp.Managers
                 Score = score
             };
         }
+        public static void DeleteQuiz(string title)
+        {
+            var quiz = _quizzes.FirstOrDefault(q => q.Title == title);
+            if (quiz == null)
+            {
+                throw new Exception("Викторина не найдена");
+            }
+            _quizzes.Remove(quiz);
+            FileManager.SaveQuizzes(_quizzes);
+        }
     }
 }
