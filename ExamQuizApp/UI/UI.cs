@@ -513,8 +513,11 @@ namespace ExamQuizApp.UI
                     var option = question.Options[choice - 1];
                     Console.WriteLine("Введите новый текст варианта:");
                     option.Text = Console.ReadLine();
-
                     Console.WriteLine("Этот вариант правильный? (true/false):");
+                    if (!Boolean.TryParse(Console.ReadLine(), out bool isCorrect))
+                    {
+                        throw new FormatException("Неверный формат ввода для правильности варианта.");
+                    }
                     option.IsCorrect = Boolean.Parse(Console.ReadLine());
                     FileManager.SaveQuizzes(QuizManager.GetQuizzes());
                 }
