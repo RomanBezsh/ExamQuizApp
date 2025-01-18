@@ -811,7 +811,7 @@ namespace ExamQuizApp.UI
                 },
                 new Question
                 {
-                    Text = "Какая страна первой отправила человека в космос?\r\n\r\n",
+                    Text = "Какая страна первой отправила человека в космос?",
                     Options = new List<Option>
                     {
                         new Option { Text = "Соединенные Штаты Америки", IsCorrect = false },

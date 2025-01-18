@@ -26,27 +26,6 @@ namespace ExamQuizApp.Managers
                 throw new Exception("Данного аккаунта нет");
             return user;
         }
-        public static void ChangePassword(string login, string oldPassword, string newPassword)
-        {
-            var user = _users.FirstOrDefault(user => user.Login == login && user.Password == oldPassword);
-            if (user == null)
-                throw new Exception("Неверный логин или пароль");
-            user.Password = newPassword;
-        }
-        public static void ChangeDateOfBirth(string login, DateTime date)
-        {
-            var user = _users.FirstOrDefault(user => user.Login == login);
-            if (user == null)
-                throw new Exception("Неверный логин");
-            user.DateOfBirth = date;
-        }
-        public static void DeleteUser(string login)
-        {
-            var user = _users.FirstOrDefault(user => user.Login == login);
-            if (user == null)
-                throw new Exception("Неверный логин");
-            _users.Remove(user);
-        }
         public static void LoadUsers()
         {
             _users = FileManager.LoadUsers();
