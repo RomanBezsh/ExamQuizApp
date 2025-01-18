@@ -763,8 +763,6 @@ namespace ExamQuizApp.UI
         }
 
 
-
-
         //Загрузка данных
         private void LoadData()
         {
