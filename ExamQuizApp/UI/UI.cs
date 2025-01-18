@@ -879,7 +879,6 @@ namespace ExamQuizApp.UI
                     }
                 }
             });
-
         }
     }
 
